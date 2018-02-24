@@ -1,11 +1,12 @@
 #include <ESP8266WiFi.h>
 
-const char* ssid = "IoT";
+const char* ssid = "ssid";
 const char* password = "password";
+
 //WiFi.mode(WIFI_STA); // Station (client) by default unless AP enabled 
 
 void setup (){
-  WiFi.begin(ssid, password);
+  
   Serial.begin(115200);
   WiFi.begin(ssid, password);
   delay(1000);
@@ -16,6 +17,7 @@ void setup (){
     Serial.print(".");
  
   }
+  WiFi.printDiag(Serial); // Print WiFi connection information
  
  
 }
