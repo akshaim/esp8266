@@ -4,7 +4,7 @@
 
   = SPIFFS
   upload the contents of the data folder with MkSPIFFS Tool ("ESP8266 Sketch Data Upload" in Tools menu in Arduino IDE)
-  https://github.com/esp8266/Arduino/blob/master/doc/filesystem.md#uploading-files-to-file-system
+  https://github.com/esp8266/arduino-esp8266fs-plugin
 
   = Javascript GAUGE
   Javascript Gauge
