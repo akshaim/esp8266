@@ -55,6 +55,7 @@ int counter = 0;
 int start = 0;
 int alert = 1;
 int wfm = 1;
+int AP = 0;
 //-----------------------------------------------------------------
 String XML;
 void buildXML() {
@@ -77,12 +78,12 @@ void handleXML() {
   buildXML();
 
   if (start == 0) {
-    Serial.println("New Client connected");
+    //Serial.println("New Client connected");
     delay(500);
     start = 1;
   }
   server.send(200, "text/xml", XML);
-  Serial.println("XML Data sent");
+  //Serial.println("XML Data sent");
 }
 //----------------------------------------------------------------------
 //format bytes
@@ -116,7 +117,7 @@ String getContentType(String filename) {
 }
 //----------------------------------------------------------------------
 bool handleFileRead(String path) {
-  Serial.println("handleFileRead: " + path);
+  //Serial.println("handleFileRead: " + path);
   start = 0;
   if (path.endsWith("/")) path += "index.htm";
   String contentType = getContentType(path);
@@ -134,14 +135,19 @@ bool handleFileRead(String path) {
 //----------------------------------------------------------------------
 void setup(void) {
   pinMode(TRIGGER_PIN, INPUT_PULLUP);
-  Serial.begin(115200);
-  Serial.print("\n");
-  Serial.setDebugOutput(true);
+  WiFi.softAPdisconnect(true); // Remove to set persistent AP.
+  //Serial.begin(115200);
+  //Serial.print("\n");
+  //Serial.setDebugOutput(true);
+  //wifiManager.resetSettings();
   delay(500);
   wfm = wifiManager.autoConnect("ServerStatusAP");
-  if (wfm == 0) {
-    delay(1000);
+  delay(2000);
+  if (wfm == 0 && WiFi.status() != WL_CONNECTED) {
     WiFi.softAP(ssid);
+  }
+  else {
+    wfm = 1;
   }
   dht.begin();
   delay(1000);
@@ -151,14 +157,14 @@ void setup(void) {
     while (dir.next()) {
       String fileName = dir.fileName();
       size_t fileSize = dir.fileSize();
-      Serial.printf("FS File: %s, size: %s\n", fileName.c_str(), formatBytes(fileSize).c_str());
+      //Serial.printf("FS File: %s, size: %s\n", fileName.c_str(), formatBytes(fileSize).c_str());
     }
-    Serial.printf("\n");
+    //Serial.printf("\n");
   }
 
   if (MDNS.begin("server-status")) {  //Start mDNS
 
-    Serial.println("MDNS started");
+    //Serial.println("MDNS started");
   }
   server.on("/xml", handleXML);
   server.onNotFound([]() {
@@ -166,15 +172,15 @@ void setup(void) {
       server.send(404, "text/plain", "FileNotFound");
   });
   server.begin();
-  Serial.println("HTTP server started");
+  //Serial.println("HTTP server started");
 }
 //----------------------------------------------------------------------
 void loop(void) {
 
-  if (WiFi.status() != WL_CONNECTED && wfm == 1 ) {
+  if (WiFi.status() != WL_CONNECTED && wfm == 1 ) { //Restart on connection failure
     ESP.restart();
   }
-  if (digitalRead(TRIGGER_PIN) == LOW ) {
+  if (digitalRead(TRIGGER_PIN) == LOW ) {  // Reset settings when button is pressed
     wifiManager.resetSettings();
     ESP.restart();
   }
@@ -195,9 +201,9 @@ void measure(void) {
   }
   if (temp != webtemp && isnan(temp) != 1) {
     webtemp = temp;
-    Serial.println("Temperature Changed");
-    Serial.print("Temperature: ");
-    Serial.println(temp);
+    //Serial.println("Temperature Changed");
+    //Serial.print("Temperature: ");
+    //Serial.println(temp);
     counter = 0;
     alert = 1;
   }
@@ -212,9 +218,9 @@ void measure(void) {
   }
   if (hum != webhum && isnan(hum) != 1) {
     webhum = hum;
-    Serial.println("Humidity Changed ");
-    Serial.print("Humidity: ");
-    Serial.println(hum);
+    //Serial.println("Humidity Changed ");
+    //Serial.print("Humidity: ");
+    //Serial.println(hum);
     alert = 1;
   }
 }
